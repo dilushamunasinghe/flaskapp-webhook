@@ -3,8 +3,8 @@
 # Navigate to the app directory
 cd /home/ubuntu/flaskapp-webhook/my_flask_app || exit
 
-# Activate the virtual environment
-source venv/bin/activate
+# # Activate the virtual environment
+# source venv/bin/activate
 
 # Pull the latest changes from the repository
 git pull origin main
