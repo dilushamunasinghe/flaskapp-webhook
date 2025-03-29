@@ -1,13 +1,16 @@
 #!/bin/bash
 
-# Navigate to app directory
-cd /home/ubuntu/flaskapp-webhook/my_flask_app || exit
+# Navigate to the app directory
+cd /home/ubuntu/flaskapp-webhook/my_flask_app
+
+# Pull the latest changes from the repository
+git pull origin main
 
 # Activate the virtual environment
 source venv/bin/activate
 
-# Pull latest changes
-git pull origin main
+# # Install any new dependencies
+# pip install -r requirements.txt
 
-# Restart Gunicorn
-sudo systemctl restart gunicorn
+# Restart the Gunicorn service
+sudo systemctl restart my_flask_app
