@@ -16,13 +16,16 @@ def webhook():
     if request.method == 'POST':
         try:
             # Log the full payload for debugging purposes
-            logging.info(f"Webhook payload received: {request.json}")
+            payload = request.json
+            logging.info(f"Webhook payload received: {payload}")
 
-            # Define the target branch (flexible for changes in the future)
+            # Define the target branch (flexible for future changes)
             target_branch = 'main'
 
-            # Validate the branch reference in the payload
-            ref = request.json.get('ref')
+            # Extract and validate the 'ref' from the payload
+            ref = payload.get('ref')
+            logging.info(f"Branch reference: {ref}")
+
             if ref and ref == f'refs/heads/{target_branch}':
                 # Log the branch triggering the webhook
                 logging.info(f"Webhook triggered by changes to branch: {target_branch}")
@@ -30,8 +33,13 @@ def webhook():
                 # Trigger the deployment script
                 script_path = '/home/ubuntu/flaskapp-webhook/my_flask_app/deploy.sh'
                 if os.path.exists(script_path):
-                    os.system(f'sh {script_path}')
-                    return jsonify({"message": f"Deployment initiated for {target_branch} branch"}), 200
+                    exit_code = os.system(f'sh {script_path}')
+                    if exit_code == 0:
+                        logging.info("Deployment script executed successfully.")
+                        return jsonify({"message": f"Deployment initiated for {target_branch} branch"}), 200
+                    else:
+                        logging.error("Deployment script encountered an error during execution.")
+                        return jsonify({"message": "Deployment script failed during execution"}), 500
                 else:
                     logging.error(f"Deployment script not found at path: {script_path}")
                     return jsonify({"message": "Deployment script not found"}), 500
