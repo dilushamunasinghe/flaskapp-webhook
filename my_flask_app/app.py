@@ -19,7 +19,7 @@ def webhook():
             logging.info(f"Webhook triggered: {request.json}")
 
             # Optional: Validate the request payload (customize according to your needs)
-            if 'ref' in request.json and 'master' in request.json['ref']:
+            if 'ref' in request.json and 'main' in request.json['ref']:
                 # Trigger the deployment script
                 os.system('sh /home/ubuntu/flaskapp-webhook/my_flask_app/deploy.sh')
                 return jsonify({"message": "Deployment initiated successfully"}), 200
