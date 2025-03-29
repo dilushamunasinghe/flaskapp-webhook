@@ -93,11 +93,11 @@ Make sure you're in the correct directory:
 
 `source venv/bin/activate`
 
-2. Test the Application
+2. Test Gunicorn
 Run the Flask application to ensure it works:
 
 ```bash
-python app.py
+gunicorn -w 4 -b 127.0.0.1:5000 app:app
 ```
 
 Access your app temporarily at http://your-ec2-public-ip:5000. If everything looks good, move on to hosting.
