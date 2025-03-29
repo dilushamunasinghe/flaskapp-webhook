@@ -16,33 +16,19 @@ def webhook():
     if request.method == 'POST':
         try:
             # Log the full payload for debugging purposes
-            payload = request.json
-            logging.info(f"Webhook payload received: {payload}")
+            logging.info(f"Webhook payload received: {request.json}")
 
-            # Define the target branch (flexible for future changes)
+            # Define the target branch (flexible for changes in the future)
             target_branch = 'main'
 
-            # Extract and validate the 'ref' from the payload
-            ref = payload.get('ref')
-            logging.info(f"Branch reference: {ref}")
-
-            if ref and ref == f'refs/heads/{target_branch}':
+            # Validate the branch reference in the payload
+            if 'ref' in request.json and f'refs/heads/{target_branch}' in request.json['ref']:
                 # Log the branch triggering the webhook
                 logging.info(f"Webhook triggered by changes to branch: {target_branch}")
 
                 # Trigger the deployment script
-                script_path = '/home/ubuntu/flaskapp-webhook/my_flask_app/deploy.sh'
-                if os.path.exists(script_path):
-                    exit_code = os.system(f'sh {script_path}')
-                    if exit_code == 0:
-                        logging.info("Deployment script executed successfully.")
-                        return jsonify({"message": f"Deployment initiated for {target_branch} branch"}), 200
-                    else:
-                        logging.error("Deployment script encountered an error during execution.")
-                        return jsonify({"message": "Deployment script failed during execution"}), 500
-                else:
-                    logging.error(f"Deployment script not found at path: {script_path}")
-                    return jsonify({"message": "Deployment script not found"}), 500
+                os.system('sh /home/ubuntu/flaskapp-webhook/my_flask_app/deploy.sh')
+                return jsonify({"message": f"Deployment initiated for {target_branch} branch"}), 200
             else:
                 logging.warning(f"Webhook triggered but not targeting the '{target_branch}' branch.")
                 return jsonify({"message": f"Not targeting the '{target_branch}' branch"}), 400
