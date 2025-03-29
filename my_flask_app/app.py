@@ -22,13 +22,19 @@ def webhook():
             target_branch = 'main'
 
             # Validate the branch reference in the payload
-            if 'ref' in request.json and f'refs/heads/{target_branch}' in request.json['ref']:
+            ref = request.json.get('ref')
+            if ref and ref == f'refs/heads/{target_branch}':
                 # Log the branch triggering the webhook
                 logging.info(f"Webhook triggered by changes to branch: {target_branch}")
 
                 # Trigger the deployment script
-                os.system('sh /home/ubuntu/flaskapp-webhook/my_flask_app/deploy.sh')
-                return jsonify({"message": f"Deployment initiated for {target_branch} branch"}), 200
+                script_path = '/home/ubuntu/flaskapp-webhook/my_flask_app/deploy.sh'
+                if os.path.exists(script_path):
+                    os.system(f'sh {script_path}')
+                    return jsonify({"message": f"Deployment initiated for {target_branch} branch"}), 200
+                else:
+                    logging.error(f"Deployment script not found at path: {script_path}")
+                    return jsonify({"message": "Deployment script not found"}), 500
             else:
                 logging.warning(f"Webhook triggered but not targeting the '{target_branch}' branch.")
                 return jsonify({"message": f"Not targeting the '{target_branch}' branch"}), 400
